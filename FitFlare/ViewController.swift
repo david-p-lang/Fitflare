@@ -24,6 +24,9 @@ class ViewController: UIViewController {
     let light = SCNNode()
     let spotLight = SCNLight()
     
+    let gameName = SCNText(string:"test", extrusionDepth: 0.5)
+    let titleNode = SCNNode()
+    
     let ball = SCNBox(width: 1.0, height: 1.0, length: 1.0, chamferRadius: 0.15)
 
     let ballNode = SCNNode()
@@ -43,6 +46,14 @@ class ViewController: UIViewController {
         
         playSound(name: "Ice_Cream")
         
+        //gameName.alignmentMode =
+        //gameName.font = UIFont.boldSystemFont(ofSize: 6)
+        titleNode.geometry = gameName
+        
+        titleNode.position = SCNVector3(0, 3, -20)
+        scene.rootNode.addChildNode(titleNode)
+        
+        
         let groundGeometry = SCNFloor()
         groundGeometry.reflectivity = 0.1
         let groundMaterial = SCNMaterial()
@@ -56,7 +67,7 @@ class ViewController: UIViewController {
         groundGeometry.materials = [groundMaterial]
         
         let ground = SCNNode(geometry: groundGeometry)
-        ground.position = SCNVector3(5, 0, -20)
+        ground.position = SCNVector3(0, 0, -20)
 
         setupLight(ground)
         
@@ -135,8 +146,8 @@ class ViewController: UIViewController {
         //cameraNode.camera?.colorFringeIntensity = 1.0
         cameraNode.camera?.vignettingIntensity = 2.0
         cameraNode.camera?.vignettingPower = 0.1
-        cameraNode.position = SCNVector3(0, 5, 10)
-        cameraNode.rotation = SCNVector4(0, 0, 0, -1)
+        cameraNode.position = SCNVector3(0, 5, 12)
+        //cameraNode.rotation = SCNVector4(0, 0, 0, -1)
     }
     
     fileprivate func setupLight(_ ground: SCNNode) {
@@ -182,7 +193,9 @@ extension ViewController {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
             player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
+            player?.prepareToPlay()
             player?.play()
+            player?.numberOfLoops = 3
         } catch let error {
             print(error.localizedDescription)
         }
