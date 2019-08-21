@@ -31,14 +31,7 @@ class HeartRateLEMonitor:NSObject, CBCentralManagerDelegate, CBPeripheralDelegat
     var heartRateCBServiceCollection:[AnyObject] = [CBUUID(string: "180D")]
     var heartRateCBService:CBService!
     var periphs:[AnyObject]!
-    var knownMonitors = ""
-    
-    var heartRateCheckerCount = 0
-    var heartRateCheckerNew = ""
-    var heartRateCheckerOld = ""
-    
-    
-    var notification = NotificationCenter.default
+
     
     // Mark: -Central Manager Startup
     func startUpCentralManager() {
@@ -54,13 +47,7 @@ class HeartRateLEMonitor:NSObject, CBCentralManagerDelegate, CBPeripheralDelegat
             
             self.periphs = centralManager.retrieveConnectedPeripherals(withServices: [self.HeartRateService])
             print("system connected peripherals: \(periphs)")
-            
-            //Create Notification for peripheral list
-            if periphs.count > 0 {
-                for _ in 1...periphs.count {
-                    notification.post(name: Notification.Name(rawValue: "devices"), object: nil, userInfo: ["theDevices":"checkPeriphs"])
-                }
-            }
+
             
             
         }
@@ -68,15 +55,15 @@ class HeartRateLEMonitor:NSObject, CBCentralManagerDelegate, CBPeripheralDelegat
             centralManager.scanForPeripherals(withServices: [HeartRateService], options: nil)
         }
     }
-    //==============================STOP SCANNING============================
+
     func stopScanning() {
         centralManager.stopScan()
     }
-    //=============================USER SCAN FOR PERIPHERAL========================
+
     func scanForMonitor() {
         centralManager.scanForPeripherals(withServices: [HeartRateService], options: nil)
     }
-    //=============================CHECK HEART RATE CONNECTION=====================
+
     func checkHeartRateConnection() {
         switch self.thePeripheral.state {
         case .disconnected:
@@ -86,7 +73,6 @@ class HeartRateLEMonitor:NSObject, CBCentralManagerDelegate, CBPeripheralDelegat
         }
     }
     
-    //===========================CENTRAL MANAGER FUNCTIONS=========================
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         NSLog("checking state")
         var theLEState = ""
@@ -106,7 +92,6 @@ class HeartRateLEMonitor:NSObject, CBCentralManagerDelegate, CBPeripheralDelegat
             theLEState = "Bluetooth type needed is unsupported on this platform"
         }
         NSLog(theLEState)
-        notification.post(name: Notification.Name(rawValue: "bluetoothStatus"), object: nil, userInfo: ["theBTState":theLEState])
         if blueToothReady {
             discoverDevices()
         }
@@ -121,7 +106,6 @@ class HeartRateLEMonitor:NSObject, CBCentralManagerDelegate, CBPeripheralDelegat
         peripheral.delegate = self
         switch (peripheral.state) {
         case .connected:
-            notification.post(name: Notification.Name(rawValue: "peripheralStatus"), object: nil, userInfo: ["thePeripheralState":"Connected"])
             self.thePeripheral = peripheral
             self.thePeripheral.discoverServices(nil)
             centralManager.stopScan()
@@ -141,13 +125,11 @@ class HeartRateLEMonitor:NSObject, CBCentralManagerDelegate, CBPeripheralDelegat
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         NSLog("Discovered \(String(describing: peripheral.name))")
         self.thePeripheral = peripheral
-        notification.post(name: Notification.Name(rawValue: "peripheralStatus"), object: nil, userInfo: ["thePeripheralState":"DidDiscover"])
         centralManager.connect(peripheral, options: nil)
         _ = "Disconnected"
         switch (peripheral.state) {
         case .connected:
             NSLog("peripheral state is connected")
-            notification.post(name: Notification.Name(rawValue: "peripheralStatus"), object: nil, userInfo: ["thePeripheralState":"Connected"])
             bluetoothConnected = true
             centralManager.stopScan()
             return
@@ -161,7 +143,6 @@ class HeartRateLEMonitor:NSObject, CBCentralManagerDelegate, CBPeripheralDelegat
         }
     }
     
-    //==============================PERIPHERAL FUNCTIONS==================================
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if peripheral.services != nil {
             heartRateCBServiceCollection = peripheral.services!
@@ -172,8 +153,8 @@ class HeartRateLEMonitor:NSObject, CBCentralManagerDelegate, CBPeripheralDelegat
                 self.thePeripheral.discoverCharacteristics(nil, for: heartRateCBService as! CBService)
             }
         }
-        
     }
+    
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         for chars in service.characteristics! {
             thePeripheral.setNotifyValue(true, for: chars )
@@ -183,6 +164,7 @@ class HeartRateLEMonitor:NSObject, CBCentralManagerDelegate, CBPeripheralDelegat
         }
         
     }
+    
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic,
                     error: Error?)
     {
@@ -204,17 +186,7 @@ class HeartRateLEMonitor:NSObject, CBCentralManagerDelegate, CBPeripheralDelegat
             let outputBPM = String(bpm)
             print("-->"+outputBPM)
             currentHeartRate = Int(outputBPM)!
-            
-            
-            
-            notification.post(name: Notification.Name(rawValue: "heartRateBroadcast"), object: nil, userInfo: ["message":outputBPM])
-            
-            //=====
-            
-            
-            
-            
+
         }
-        
     }
 }

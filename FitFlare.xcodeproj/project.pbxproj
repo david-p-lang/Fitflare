@@ -11,6 +11,7 @@
 		6323FF1B230873E000233782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6323FF1A230873E000233782 /* ViewController.swift */; };
 		6323FF1E230873E000233782 /* FitFlare.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6323FF1C230873E000233782 /* FitFlare.xcdatamodeld */; };
 		6323FF23230873E500233782 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6323FF22230873E500233782 /* Assets.xcassets */; };
+		6358A720230C73DF0092F0D8 /* PlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6358A71F230C73DF0092F0D8 /* PlayViewController.swift */; };
 		638F4B16230B437400A48054 /* Take_You.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 638F4B08230B437000A48054 /* Take_You.mp3 */; };
 		638F4B17230B437400A48054 /* A_Rising_Wave.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 638F4B09230B437000A48054 /* A_Rising_Wave.mp3 */; };
 		638F4B18230B437400A48054 /* Y_Files.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 638F4B0A230B437100A48054 /* Y_Files.mp3 */; };
@@ -26,6 +27,7 @@
 		638F4B22230B437400A48054 /* Classique.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 638F4B14230B437400A48054 /* Classique.mp3 */; };
 		638F4B23230B437400A48054 /* Scanner.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 638F4B15230B437400A48054 /* Scanner.mp3 */; };
 		638F4B25230B467400A48054 /* HeartRateLEMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638F4B24230B467400A48054 /* HeartRateLEMonitor.swift */; };
+		63FEB980230DB83000F667CC /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FEB97F230DB83000F667CC /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +37,7 @@
 		6323FF1D230873E000233782 /* FitFlare.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = FitFlare.xcdatamodel; sourceTree = "<group>"; };
 		6323FF22230873E500233782 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6323FF24230873E500233782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6358A71F230C73DF0092F0D8 /* PlayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayViewController.swift; sourceTree = "<group>"; };
 		638F4B08230B437000A48054 /* Take_You.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Take_You.mp3; sourceTree = "<group>"; };
 		638F4B09230B437000A48054 /* A_Rising_Wave.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = A_Rising_Wave.mp3; sourceTree = "<group>"; };
 		638F4B0A230B437100A48054 /* Y_Files.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Y_Files.mp3; sourceTree = "<group>"; };
@@ -50,6 +53,7 @@
 		638F4B14230B437400A48054 /* Classique.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Classique.mp3; sourceTree = "<group>"; };
 		638F4B15230B437400A48054 /* Scanner.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Scanner.mp3; sourceTree = "<group>"; };
 		638F4B24230B467400A48054 /* HeartRateLEMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeartRateLEMonitor.swift; sourceTree = "<group>"; };
+		63FEB97F230DB83000F667CC /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,10 +89,12 @@
 			children = (
 				6323FF18230873E000233782 /* AppDelegate.swift */,
 				6323FF1A230873E000233782 /* ViewController.swift */,
+				6358A71F230C73DF0092F0D8 /* PlayViewController.swift */,
 				638F4B24230B467400A48054 /* HeartRateLEMonitor.swift */,
 				6323FF22230873E500233782 /* Assets.xcassets */,
 				6323FF24230873E500233782 /* Info.plist */,
 				6323FF1C230873E000233782 /* FitFlare.xcdatamodeld */,
+				63FEB97F230DB83000F667CC /* Constants.swift */,
 			);
 			path = FitFlare;
 			sourceTree = "<group>";
@@ -198,9 +204,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				638F4B25230B467400A48054 /* HeartRateLEMonitor.swift in Sources */,
+				6358A720230C73DF0092F0D8 /* PlayViewController.swift in Sources */,
 				6323FF1B230873E000233782 /* ViewController.swift in Sources */,
 				6323FF19230873E000233782 /* AppDelegate.swift in Sources */,
 				6323FF1E230873E000233782 /* FitFlare.xcdatamodeld in Sources */,
+				63FEB980230DB83000F667CC /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

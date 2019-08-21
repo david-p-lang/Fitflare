@@ -8,6 +8,7 @@
 
 import UIKit
 import SceneKit
+import SpriteKit
 import AVFoundation
 
 class ViewController: UIViewController {
@@ -21,17 +22,15 @@ class ViewController: UIViewController {
     var cameraNode = SCNNode()
     let scene = SCNScene()
     
-    let light = SCNNode()
+    let lightNode = SCNNode()
     let spotLight = SCNLight()
-    
-    let gameName = SCNText(string:"test", extrusionDepth: 0.5)
-    let titleNode = SCNNode()
     
     let ball = SCNBox(width: 1.0, height: 1.0, length: 1.0, chamferRadius: 0.15)
 
     let ballNode = SCNNode()
     
     var player: AVAudioPlayer?
+    let name = "Ice_Cream"
     
 
     override func viewDidLoad() {
@@ -42,17 +41,10 @@ class ViewController: UIViewController {
         setupScreenStack()
         setupButtonStack()
         setupScene()
-        setupCamera()
+        setupCamera(cameraNode: cameraNode)
         
-        playSound(name: "Ice_Cream")
-        
-        //gameName.alignmentMode =
-        //gameName.font = UIFont.boldSystemFont(ofSize: 6)
-        titleNode.geometry = gameName
-        
-        titleNode.position = SCNVector3(0, 3, -20)
-        scene.rootNode.addChildNode(titleNode)
-        
+
+        playSound(name: name)
         
         let groundGeometry = SCNFloor()
         groundGeometry.reflectivity = 0.1
@@ -65,13 +57,13 @@ class ViewController: UIViewController {
         let aPurpleMaterial = SCNMaterial()
         aPurpleMaterial.diffuse.contents = UIImage(named: "grid")
         groundGeometry.materials = [groundMaterial]
-        
+    
         let ground = SCNNode(geometry: groundGeometry)
         ground.position = SCNVector3(0, 0, -20)
 
-        setupLight(ground)
+        setupLight(light: spotLight, node: lightNode, ground)
         
-        scene.rootNode.addChildNode(light)
+        scene.rootNode.addChildNode(lightNode)
         scene.rootNode.addChildNode(ground)
         scene.rootNode.addChildNode(cameraNode)
         
@@ -102,21 +94,51 @@ class ViewController: UIViewController {
         _ = SCNAction.repeatForever(hoverSequence3)
         cameraNode.runAction(lookGroup)
         addHoverSpin(node: ballNode)
+        
+        //sprite kit display
+        
+        let skScene = SKScene(size: CGSize(width: 1000, height: 500))
+        skScene.backgroundColor = UIColor.clear
+        skScene.scaleMode = .aspectFill
+        let rectangle = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 1000, height: 500), cornerRadius: 20)
+        rectangle.fillColor = #colorLiteral(red: 0.2588235438, green: 0.7568627596, blue: 0.9686274529, alpha: 1)
+        rectangle.strokeColor = #colorLiteral(red: 0.05882352963, green: 0.180392161, blue: 0.2470588237, alpha: 1)
+        rectangle.lineWidth = 4
+        rectangle.alpha = 0.1
+        let labelNode = SKLabelNode(text: "Shapeshifter")
+        labelNode.fontSize = 150
+        labelNode.position = CGPoint(x:400,y:350)
+        let hrNode = SKLabelNode(text: "Heart Rate: \(hrMonitor.currentHeartRate)")
+        hrNode.fontSize = 100
+        hrNode.position = CGPoint(x: 400, y: 120)
+        skScene.addChild(hrNode)
+        skScene.addChild(rectangle)
+        skScene.addChild(labelNode)
+        
+        let plane = SCNPlane(width: 15, height: 7.5)
+        let material = SCNMaterial()
+        material.isDoubleSided = true
+        material.diffuse.contents = skScene
+        plane.materials = [material]
+        let node = SCNNode(geometry: plane)
+        node.position = SCNVector3(-15, 5, -18)
+        node.eulerAngles = SCNVector3(CGFloat.pi, 0, 0)
+        cameraNode.addChildNode(node)
+
     }
     
-    func addHoverSpin(node: SCNNode) {
-        let rotateOne = SCNAction.rotateBy(x: 0, y: CGFloat(Float.pi), z: 0, duration: 4.0)
-        let hoverUp = SCNAction.moveBy(x: 0, y: 0.3, z: 0, duration: 2.5)
-        let hoverDown = SCNAction.moveBy(x: 0, y: -0.3, z: 0, duration: 2.5)
-        let hoverSequence = SCNAction.sequence([hoverUp, hoverDown])
-        let rotateAndHover = SCNAction.group([rotateOne, hoverSequence])
-        let repeatForever = SCNAction.repeatForever(rotateAndHover)
-        node.runAction(repeatForever)
+    @objc func pushPlay() {
+        print("pushplay")
+        let playVC = PlayViewController(nibName: nil, bundle: nil)
+        playVC.hrMonitor = self.hrMonitor
+        player?.stop()
+        self.navigationController?.pushViewController(playVC, animated: true)
     }
     
     func createButtons() {
         let playButton = UIButton(type: .system)
         playButton.setTitle(NSLocalizedString("Play", comment: ""), for: .normal)
+        playButton.addTarget(self, action: #selector(self.pushPlay), for: .primaryActionTriggered)
         configureButtons(playButton)
         
         let connectButton = UIButton(type: .system)
@@ -130,36 +152,30 @@ class ViewController: UIViewController {
         sceneView.heightAnchor.constraint(equalToConstant: 800).isActive = true
         sceneView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
         sceneView.translatesAutoresizingMaskIntoConstraints = false
-        sceneView.backgroundColor = .blue
+        sceneView.backgroundColor = UIColor(displayP3Red: 0.0, green: 0.4, blue: 0.7, alpha: 0.3)
         sceneView.scene = scene
         sceneView.scene?.fogStartDistance = 2
-        sceneView.scene?.fogDensityExponent = 3
-        sceneView.scene?.fogEndDistance = 50
-        sceneView.scene?.fogColor = UIColor.white
+        sceneView.scene?.fogDensityExponent = 2
+        sceneView.scene?.fogEndDistance = 100
+        sceneView.scene?.fogColor = UIColor.init(white: 1.0, alpha: 0.9)
         sceneView.allowsCameraControl = true
     }
     
-    fileprivate func setupCamera() {
-        cameraNode.camera = SCNCamera()
-        cameraNode.camera?.wantsHDR = true
-        cameraNode.camera?.bloomIntensity = 0.8
-        //cameraNode.camera?.colorFringeIntensity = 1.0
-        cameraNode.camera?.vignettingIntensity = 2.0
-        cameraNode.camera?.vignettingPower = 0.1
-        cameraNode.position = SCNVector3(0, 5, 12)
-        //cameraNode.rotation = SCNVector4(0, 0, 0, -1)
+    func playSound(name: String) {
+        guard let url = Bundle.main.url(forResource: name, withExtension: "mp3") else { return }
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+            player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
+            player?.prepareToPlay()
+            player?.play()
+            player?.numberOfLoops = 3
+        } catch let error {
+            print(error.localizedDescription)
+        }
     }
     
-    fileprivate func setupLight(_ ground: SCNNode) {
-        spotLight.type = SCNLight.LightType.spot
-        spotLight.castsShadow = true
-        spotLight.spotInnerAngle = 50.0
-        spotLight.spotOuterAngle = 100.0
-        spotLight.zFar = 70
-        light.light = spotLight
-        light.position = SCNVector3(x: 0, y: 3, z: 10)
-        light.constraints = [SCNLookAtConstraint(target: ground)]
-    }
+
     
     func configureButtons(_ button: UIButton) {
         buttonStack.addArrangedSubview(button)
@@ -186,19 +202,38 @@ class ViewController: UIViewController {
     }
 }
 
-extension ViewController {
-    func playSound(name: String) {
-        guard let url = Bundle.main.url(forResource: name, withExtension: "mp3") else { return }
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
-            player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
-            player?.prepareToPlay()
-            player?.play()
-            player?.numberOfLoops = 3
-        } catch let error {
-            print(error.localizedDescription)
-        }
+extension UIViewController {
+ 
+    
+    func addHoverSpin(node: SCNNode) {
+        let rotateOne = SCNAction.rotateBy(x: 0, y: CGFloat(Float.pi), z: 0, duration: 4.0)
+        let hoverUp = SCNAction.moveBy(x: 0, y: 0.3, z: 0, duration: 2.5)
+        let hoverDown = SCNAction.moveBy(x: 0, y: -0.3, z: 0, duration: 2.5)
+        let hoverSequence = SCNAction.sequence([hoverUp, hoverDown])
+        let rotateAndHover = SCNAction.group([rotateOne, hoverSequence])
+        let repeatForever = SCNAction.repeatForever(rotateAndHover)
+        node.runAction(repeatForever)
+    }
+    
+    func setupLight(light: SCNLight, node: SCNNode, _ ground: SCNNode) {
+        light.type = SCNLight.LightType.spot
+        light.castsShadow = true
+        light.spotInnerAngle = 50.0
+        light.spotOuterAngle = 100.0
+        light.zFar = 70
+        node.light = light
+        node.position = SCNVector3(x: 0, y: 3, z: 10)
+        node.constraints = [SCNLookAtConstraint(target: ground)]
+    }
+    
+    func setupCamera(cameraNode: SCNNode) {
+        cameraNode.camera = SCNCamera()
+        cameraNode.camera?.wantsHDR = true
+        cameraNode.camera?.bloomIntensity = 0.8
+        //cameraNode.camera?.colorFringeIntensity = 1.0
+        cameraNode.camera?.vignettingIntensity = 2.0
+        cameraNode.camera?.vignettingPower = 0.1
+        cameraNode.position = SCNVector3(0, 5, 12)
     }
 }
 
