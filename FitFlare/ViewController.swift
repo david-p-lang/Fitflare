@@ -25,14 +25,14 @@ class ViewController: UIViewController {
     let lightNode = SCNNode()
     let spotLight = SCNLight()
     
-    let ball = SCNBox(width: 1.0, height: 1.0, length: 1.0, chamferRadius: 0.15)
+    let cube = SCNBox(width: 1.0, height: 1.0, length: 1.0, chamferRadius: 0.15)
 
-    let ballNode = SCNNode()
+    let cubeNode = SCNNode()
     
     var player: AVAudioPlayer?
     let name = "Ice_Cream"
     
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -42,7 +42,7 @@ class ViewController: UIViewController {
         setupButtonStack()
         setupScene()
         setupCamera(cameraNode: cameraNode)
-        
+        createButtons()
 
         playSound(name: name)
         
@@ -50,12 +50,6 @@ class ViewController: UIViewController {
         groundGeometry.reflectivity = 0.1
         let groundMaterial = SCNMaterial()
         groundMaterial.diffuse.contents = UIColor.darkGray
-        let cyanMaterial = SCNMaterial()
-        cyanMaterial.diffuse.contents = UIColor.cyan
-        let anOrangeMaterial = SCNMaterial()
-        anOrangeMaterial.diffuse.contents = UIColor.orange
-        let aPurpleMaterial = SCNMaterial()
-        aPurpleMaterial.diffuse.contents = UIImage(named: "grid")
         groundGeometry.materials = [groundMaterial]
     
         let ground = SCNNode(geometry: groundGeometry)
@@ -63,37 +57,18 @@ class ViewController: UIViewController {
 
         setupLight(light: spotLight, node: lightNode, ground)
         
+ 
+        
+        setupCubeNode()
+        cube.materials.first?.diffuse.contents = UIColor.cyan
+        scene.rootNode.addChildNode(cubeNode)
         scene.rootNode.addChildNode(lightNode)
         scene.rootNode.addChildNode(ground)
         scene.rootNode.addChildNode(cameraNode)
-        
-        ballNode.geometry = ball
-        ballNode.position = SCNVector3(0,2.5,0)
-        ball.materials.first?.diffuse.contents = UIColor.cyan
-        scene.rootNode.addChildNode(ballNode)
-        
-        createButtons()
-     
-        let lookDown = SCNAction.rotateBy(x: -0.15, y: 0.01, z: -0.01, duration: 0.5)
-        let lookDownWait = SCNAction.wait(duration: 1.4)
-        let lookDownScan = SCNAction.rotateBy(x: 0, y: -0.01, z: -0.01, duration: 0.8)
-        let lookDownScanBack = SCNAction.rotateBy(x: 0, y: 0.01, z: 0.01, duration: 1.9)
-        let lookUp = SCNAction.rotateBy(x: 0.15, y: -0.01, z: 0.01, duration: 2.0)
 
-        let cameraRight = SCNAction.rotateBy(x: 0.09, y:  1.0, z: 0, duration: 2.8)
-        cameraRight.timingMode = .easeInEaseOut
-        let cameraWait = SCNAction.wait(duration: 0.7)
-        let cameraLeft = SCNAction.rotateBy(x: -0.09, y: -1.0, z: 0, duration: 3.5)
-        let cameraRight2 = SCNAction.rotateBy(x: -0.06, y:  -1.1, z: 0, duration: 2.8)
-        let cameraLeft2 = SCNAction.rotateBy(x: 0.06, y: 1.1, z: 0, duration: 3.1)
-        let hoverSequence2 = SCNAction.sequence([lookDownWait, lookDown, lookDownWait, lookDownScan, lookDownScanBack, lookUp])
-        let hoverSequence3 = SCNAction.sequence([cameraWait, cameraWait, cameraWait, cameraWait, cameraRight,cameraWait, cameraWait, cameraLeft, cameraRight2, cameraWait, cameraWait, cameraLeft2])
-        let lookGroup = SCNAction.group([hoverSequence2, hoverSequence3])
-        hoverSequence2.timingMode = .easeInEaseOut
-        hoverSequence3.timingMode = .easeInEaseOut
-        _ = SCNAction.repeatForever(hoverSequence3)
-        cameraNode.runAction(lookGroup)
-        addHoverSpin(node: ballNode)
+     
+        cameraNode.runAction(cameraPanning())
+        addHoverSpin(node: cubeNode)
         
         //sprite kit display
         
@@ -124,7 +99,11 @@ class ViewController: UIViewController {
         node.position = SCNVector3(-15, 5, -18)
         node.eulerAngles = SCNVector3(CGFloat.pi, 0, 0)
         cameraNode.addChildNode(node)
-
+    }
+    
+    fileprivate func setupCubeNode() {
+        cubeNode.geometry = cube
+        cubeNode.position = SCNVector3(0,2.5,0)
     }
     
     @objc func pushPlay() {
@@ -203,6 +182,29 @@ class ViewController: UIViewController {
 }
 
 extension UIViewController {
+    func cameraPanning() -> SCNAction {
+        let lookDown = SCNAction.rotateBy(x: -0.15, y: 0.01, z: -0.01, duration: 0.5)
+        let lookDownWait = SCNAction.wait(duration: 1.4)
+        let lookDownScan = SCNAction.rotateBy(x: 0, y: -0.01, z: -0.01, duration: 0.8)
+        let lookDownScanBack = SCNAction.rotateBy(x: 0, y: 0.01, z: 0.01, duration: 1.9)
+        let lookUp = SCNAction.rotateBy(x: 0.15, y: -0.01, z: 0.01, duration: 2.0)
+        
+        let cameraRight = SCNAction.rotateBy(x: 0.09, y:  1.0, z: 0, duration: 2.8)
+        let cameraWait = SCNAction.wait(duration: 0.7)
+        let cameraLeft = SCNAction.rotateBy(x: -0.09, y: -1.0, z: 0, duration: 3.5)
+        let cameraRight2 = SCNAction.rotateBy(x: -0.06, y:  -1.1, z: 0, duration: 2.8)
+        let cameraLeft2 = SCNAction.rotateBy(x: 0.06, y: 1.1, z: 0, duration: 3.1)
+        let hoverSequence2 = SCNAction.sequence([lookDownWait, lookDown, lookDownWait, lookDownScan, lookDownScanBack, lookUp])
+        let hoverSequence3 = SCNAction.sequence([cameraWait, cameraWait, cameraWait, cameraWait, cameraRight,cameraWait, cameraWait, cameraLeft, cameraRight2, cameraWait, cameraWait, cameraLeft2])
+        let lookGroup = SCNAction.group([hoverSequence2, hoverSequence3])
+        hoverSequence2.timingMode = .easeInEaseOut
+        hoverSequence3.timingMode = .easeInEaseOut
+        _ = SCNAction.repeatForever(hoverSequence3)
+        return lookGroup
+    }
+}
+
+extension UIViewController {
  
     
     func addHoverSpin(node: SCNNode) {
@@ -217,7 +219,7 @@ extension UIViewController {
     
     func setupLight(light: SCNLight, node: SCNNode, _ ground: SCNNode) {
         light.type = SCNLight.LightType.spot
-        light.castsShadow = true
+        light.castsShadow = false
         light.spotInnerAngle = 50.0
         light.spotOuterAngle = 100.0
         light.zFar = 70

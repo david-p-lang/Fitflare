@@ -25,7 +25,7 @@ class PlayViewController: UIViewController {
     let lightNode = SCNNode()
     let spotLight = SCNLight()
     
-    var player: AVAudioPlayer?
+    var audioPlayer: AVAudioPlayer?
     let name = "So_Lit"
     
     var hudLabelNode:SKLabelNode!
@@ -39,11 +39,10 @@ class PlayViewController: UIViewController {
     
     var playerNode:SCNNode!
     
-
+    var player:Player!
     
     fileprivate func buildHud(_ hudPosition: SCNVector3) {
-        //buildAlert()
-        //alertLabelNode.text = "Squats"
+
         let hudComponents = buildHud(position: hudPosition)
         hudNode = hudComponents.0
         hudLabelNode = hudComponents.1
@@ -62,21 +61,22 @@ class PlayViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
         setupScreenStack()
         setupButtonStack()
         setupScene()
         setupCamera(cameraNode: cameraNode)
         
-        let playerGeometry = SCNTorus(ringRadius: 0.2, pipeRadius: 0.1)
-        let playerMaterial = SCNMaterial()
-        playerMaterial.diffuse.contents = UIColor.orange
-        //playerMaterial.specular.contents = UIImage(named: "grid")
-        playerGeometry.materials = [playerMaterial]
-        playerNode = SCNNode(geometry: playerGeometry)
-        playerNode.position = SCNVector3(0, 3, 4)
-        scene.rootNode.addChildNode(playerNode)
-        addHoverSpin(node: playerNode)
+//        let playerGeometry = SCNTorus(ringRadius: 0.2, pipeRadius: 0.1)
+//        let playerMaterial = SCNMaterial()
+//        playerMaterial.diffuse.contents = UIColor.orange
+//        //playerMaterial.specular.contents = UIImage(named: "grid")
+//        playerGeometry.materials = [playerMaterial]
+//        playerNode = SCNNode(geometry: playerGeometry)
+//        playerNode.position = SCNVector3(0, 3, 4)
+//        scene.rootNode.addChildNode(playerNode)
+        player = Player()
+        scene.rootNode.addChildNode(player.node)
+        addHoverSpin(node: player.node)
         
         playSound(name: name)
 
@@ -143,7 +143,7 @@ class PlayViewController: UIViewController {
         labelNode.position = CGPoint(x: rect.midX, y: rect.midY - labelNode.frame.height / 2.0)
     }
     
-    fileprivate func buildHud(position: SCNVector3) -> (SCNNode, SKLabelNode) {
+    func buildHud(position: SCNVector3) -> (SCNNode, SKLabelNode) {
         let skHudScene = SKScene(size: CGSize(width: 1000, height: 500))
         skHudScene.backgroundColor = UIColor.clear
         skHudScene.scaleMode = .aspectFill
@@ -211,10 +211,10 @@ class PlayViewController: UIViewController {
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
-            player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
-            player?.prepareToPlay()
-            player?.play()
-            player?.numberOfLoops = 3
+            audioPlayer = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
+            audioPlayer?.prepareToPlay()
+            audioPlayer?.play()
+            audioPlayer?.numberOfLoops = 3
         } catch let error {
             print(error.localizedDescription)
         }
