@@ -37,6 +37,8 @@ class PlayViewController: UIViewController {
     var timer:Timer!
     var timerCount = 30
     
+    var playerNode:SCNNode!
+    
 
     
     fileprivate func buildHud(_ hudPosition: SCNVector3) {
@@ -65,6 +67,16 @@ class PlayViewController: UIViewController {
         setupButtonStack()
         setupScene()
         setupCamera(cameraNode: cameraNode)
+        
+        let playerGeometry = SCNTorus(ringRadius: 0.2, pipeRadius: 0.1)
+        let playerMaterial = SCNMaterial()
+        playerMaterial.diffuse.contents = UIColor.orange
+        //playerMaterial.specular.contents = UIImage(named: "grid")
+        playerGeometry.materials = [playerMaterial]
+        playerNode = SCNNode(geometry: playerGeometry)
+        playerNode.position = SCNVector3(0, 3, 4)
+        scene.rootNode.addChildNode(playerNode)
+        addHoverSpin(node: playerNode)
         
         playSound(name: name)
 
