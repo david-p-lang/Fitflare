@@ -11,10 +11,7 @@ import SceneKit
 import SpriteKit
 import AVFoundation
 
-class ViewController: UIViewController {
-
-    let hrMonitor = HeartRateLEMonitor()
-    
+class ViewController: UIViewController {    
     let screenStack = UIStackView()
     let buttonStack = UIStackView()
 
@@ -35,9 +32,8 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        hrMonitor.startUpCentralManager()
-        
+        sceneView.showsStatistics = true
+        sceneView.allowsCameraControl = true
         setupScreenStack()
         setupButtonStack()
         setupScene()
@@ -66,8 +62,8 @@ class ViewController: UIViewController {
         scene.rootNode.addChildNode(ground)
         scene.rootNode.addChildNode(cameraNode)
 
-     
-        cameraNode.runAction(cameraPanning())
+        
+        cameraNode.runAction(cameraPanning(node: cameraNode))
         addHoverSpin(node: cubeNode)
         
         //sprite kit display
@@ -83,10 +79,6 @@ class ViewController: UIViewController {
         let labelNode = SKLabelNode(text: "Shapeshifter")
         labelNode.fontSize = 150
         labelNode.position = CGPoint(x:400,y:350)
-        let hrNode = SKLabelNode(text: "Heart Rate: \(hrMonitor.currentHeartRate)")
-        hrNode.fontSize = 100
-        hrNode.position = CGPoint(x: 400, y: 120)
-        skScene.addChild(hrNode)
         skScene.addChild(rectangle)
         skScene.addChild(labelNode)
         
@@ -99,6 +91,7 @@ class ViewController: UIViewController {
         node.position = SCNVector3(-15, 5, -18)
         node.eulerAngles = SCNVector3(CGFloat.pi, 0, 0)
         cameraNode.addChildNode(node)
+        
     }
     
     fileprivate func setupCubeNode() {
@@ -107,9 +100,7 @@ class ViewController: UIViewController {
     }
     
     @objc func pushPlay() {
-        print("pushplay")
         let playVC = PlayViewController(nibName: nil, bundle: nil)
-        playVC.hrMonitor = self.hrMonitor
         player?.stop()
         self.navigationController?.pushViewController(playVC, animated: true)
     }
@@ -182,25 +173,50 @@ class ViewController: UIViewController {
 }
 
 extension UIViewController {
-    func cameraPanning() -> SCNAction {
-        let lookDown = SCNAction.rotateBy(x: -0.15, y: 0.01, z: -0.01, duration: 0.5)
+    
+    func lowerCamera(node: SCNNode) -> SCNAction {
+        node.position = SCNVector3(0, 30, 12)
+        let lookDown = SCNAction.rotateBy(x: -1, y: 0, z: 0, duration: 2)
+        let wait = SCNAction.wait(duration: 1)
+        let lookUp = lookDown.reversed()
+        let cameraSearch = SCNAction.sequence([lookDown, wait, lookUp])
+        node.runAction(cameraSearch)
+        let moveDown = SCNAction.move(to: Constants.Positions.initialCamera, duration: 5)
+        //let panning = cameraPanning()
+        //let sequence = SCNAction.sequence([moveDown, wait, panning])
+        return moveDown
+    }
+    
+    func cameraPanning(node: SCNNode) -> SCNAction {
+        
+        node.position = SCNVector3(0, 25, 18)
+        let searchDown = SCNAction.rotateBy(x: -0.2, y: 0, z: 0, duration: 2)
+        let searchWait = SCNAction.wait(duration: 1)
+        let searchUp = searchDown.reversed()
+        let cameraSearch = SCNAction.sequence([searchDown, searchWait, searchUp])
+        node.runAction(cameraSearch)
+        let moveDown = SCNAction.move(to: Constants.Positions.initialCamera, duration: 4.5)
+        let searchSequence = SCNAction.group([cameraSearch, moveDown])
+        
+        let lookDown = SCNAction.rotateBy(x: -0.10, y: 0.01, z: -0.01, duration: 0.5)
         let lookDownWait = SCNAction.wait(duration: 1.4)
         let lookDownScan = SCNAction.rotateBy(x: 0, y: -0.01, z: -0.01, duration: 0.8)
         let lookDownScanBack = SCNAction.rotateBy(x: 0, y: 0.01, z: 0.01, duration: 1.9)
-        let lookUp = SCNAction.rotateBy(x: 0.15, y: -0.01, z: 0.01, duration: 2.0)
+        let lookUp = SCNAction.rotateBy(x: 0.10, y: -0.01, z: 0.01, duration: 2.0)
         
-        let cameraRight = SCNAction.rotateBy(x: 0.09, y:  1.0, z: 0, duration: 2.8)
+        let cameraRight = SCNAction.rotateBy(x: 0.09, y:  0.7, z: 0, duration: 2.8)
         let cameraWait = SCNAction.wait(duration: 0.7)
-        let cameraLeft = SCNAction.rotateBy(x: -0.09, y: -1.0, z: 0, duration: 3.5)
-        let cameraRight2 = SCNAction.rotateBy(x: -0.06, y:  -1.1, z: 0, duration: 2.8)
-        let cameraLeft2 = SCNAction.rotateBy(x: 0.06, y: 1.1, z: 0, duration: 3.1)
+        let cameraLeft = SCNAction.rotateBy(x: -0.09, y: -0.7, z: 0, duration: 3.5)
+        let cameraRight2 = SCNAction.rotateBy(x: -0.06, y:  -0.6, z: 0, duration: 2.8)
+        let cameraLeft2 = SCNAction.rotateBy(x: 0.06, y: 0.6, z: 0, duration: 3.1)
         let hoverSequence2 = SCNAction.sequence([lookDownWait, lookDown, lookDownWait, lookDownScan, lookDownScanBack, lookUp])
         let hoverSequence3 = SCNAction.sequence([cameraWait, cameraWait, cameraWait, cameraWait, cameraRight,cameraWait, cameraWait, cameraLeft, cameraRight2, cameraWait, cameraWait, cameraLeft2])
         let lookGroup = SCNAction.group([hoverSequence2, hoverSequence3])
+        let overallSequence = SCNAction.sequence([searchSequence, lookGroup])
         hoverSequence2.timingMode = .easeInEaseOut
         hoverSequence3.timingMode = .easeInEaseOut
         _ = SCNAction.repeatForever(hoverSequence3)
-        return lookGroup
+        return overallSequence
     }
 }
 
@@ -231,16 +247,12 @@ extension UIViewController {
     func setupCamera(cameraNode: SCNNode) {
         cameraNode.camera = SCNCamera()
         cameraNode.camera?.wantsHDR = true
-        cameraNode.camera?.bloomIntensity = 0.8
-        //cameraNode.camera?.colorFringeIntensity = 1.0
-        cameraNode.camera?.vignettingIntensity = 2.0
-        cameraNode.camera?.vignettingPower = 0.1
+        cameraNode.camera?.bloomIntensity = 0.9
+        cameraNode.camera?.vignettingIntensity = 0.9
+        cameraNode.camera?.vignettingPower = 0.2
         cameraNode.position = SCNVector3(0, 5, 12)
     }
 }
 
-extension ViewController: SCNSceneRendererDelegate {
-
-}
 
 
