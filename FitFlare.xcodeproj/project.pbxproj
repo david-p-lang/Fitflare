@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		1B3A671223136CAD00BC2232 /* spark.png in Resources */ = {isa = PBXBuildFile; fileRef = 1B3A671023136CAD00BC2232 /* spark.png */; };
 		1B5C8852230F2D8E0073B1A5 /* BlockSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5C8851230F2D8E0073B1A5 /* BlockSet.swift */; };
-		1BAEF0CE23116C0D00E123CC /* Level.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAEF0CD23116C0D00E123CC /* Level.swift */; };
+		1BAEF0CE23116C0D00E123CC /* LevelUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BAEF0CD23116C0D00E123CC /* LevelUtil.swift */; };
 		1BAEF0D02313523600E123CC /* Beat_Your_Competition.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1BAEF0CF2313523600E123CC /* Beat_Your_Competition.mp3 */; };
 		1BAEF0D22313524300E123CC /* Fun.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1BAEF0D12313524200E123CC /* Fun.mp3 */; };
 		1BAEF0D42313524A00E123CC /* Hyperspeed.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1BAEF0D32313524A00E123CC /* Hyperspeed.mp3 */; };
@@ -19,6 +19,9 @@
 		1BEFB44F231372C300CEEA2E /* bokeh.scnp in Resources */ = {isa = PBXBuildFile; fileRef = 1BEFB44D231372C300CEEA2E /* bokeh.scnp */; };
 		1BEFB454231375F700CEEA2E /* reactor.scnp in Resources */ = {isa = PBXBuildFile; fileRef = 1BEFB452231375F700CEEA2E /* reactor.scnp */; };
 		1BEFB45623137E4D00CEEA2E /* Midnight.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1BEFB45523137E4D00CEEA2E /* Midnight.mp3 */; };
+		1BEFB45823174B8400CEEA2E /* DataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BEFB45723174B8400CEEA2E /* DataController.swift */; };
+		1BEFB45A23181F4C00CEEA2E /* StatsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BEFB45923181F4C00CEEA2E /* StatsTableViewController.swift */; };
+		1BEFB45C2318294E00CEEA2E /* Controller+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BEFB45B2318294E00CEEA2E /* Controller+Extensions.swift */; };
 		1BFEC461230E313C003A9C5F /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BFEC460230E313C003A9C5F /* Player.swift */; };
 		6323FF19230873E000233782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6323FF18230873E000233782 /* AppDelegate.swift */; };
 		6323FF1B230873E000233782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6323FF1A230873E000233782 /* ViewController.swift */; };
@@ -39,14 +42,13 @@
 		638F4B21230B437400A48054 /* Invisible.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 638F4B13230B437400A48054 /* Invisible.mp3 */; };
 		638F4B22230B437400A48054 /* Classique.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 638F4B14230B437400A48054 /* Classique.mp3 */; };
 		638F4B23230B437400A48054 /* Scanner.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 638F4B15230B437400A48054 /* Scanner.mp3 */; };
-		638F4B25230B467400A48054 /* HeartRateLEMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638F4B24230B467400A48054 /* HeartRateLEMonitor.swift */; };
 		63FEB980230DB83000F667CC /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63FEB97F230DB83000F667CC /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		1B3A671023136CAD00BC2232 /* spark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = spark.png; sourceTree = "<group>"; };
 		1B5C8851230F2D8E0073B1A5 /* BlockSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockSet.swift; sourceTree = "<group>"; };
-		1BAEF0CD23116C0D00E123CC /* Level.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Level.swift; sourceTree = "<group>"; };
+		1BAEF0CD23116C0D00E123CC /* LevelUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelUtil.swift; sourceTree = "<group>"; };
 		1BAEF0CF2313523600E123CC /* Beat_Your_Competition.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Beat_Your_Competition.mp3; sourceTree = "<group>"; };
 		1BAEF0D12313524200E123CC /* Fun.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Fun.mp3; sourceTree = "<group>"; };
 		1BAEF0D32313524A00E123CC /* Hyperspeed.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Hyperspeed.mp3; sourceTree = "<group>"; };
@@ -56,6 +58,9 @@
 		1BEFB44D231372C300CEEA2E /* bokeh.scnp */ = {isa = PBXFileReference; lastKnownFileType = file.scp; path = bokeh.scnp; sourceTree = "<group>"; };
 		1BEFB452231375F700CEEA2E /* reactor.scnp */ = {isa = PBXFileReference; lastKnownFileType = file.scp; path = reactor.scnp; sourceTree = "<group>"; };
 		1BEFB45523137E4D00CEEA2E /* Midnight.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Midnight.mp3; sourceTree = "<group>"; };
+		1BEFB45723174B8400CEEA2E /* DataController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataController.swift; sourceTree = "<group>"; };
+		1BEFB45923181F4C00CEEA2E /* StatsTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsTableViewController.swift; sourceTree = "<group>"; };
+		1BEFB45B2318294E00CEEA2E /* Controller+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Controller+Extensions.swift"; sourceTree = "<group>"; };
 		1BFEC460230E313C003A9C5F /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		6323FF15230873E000233782 /* FitFlare.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FitFlare.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6323FF18230873E000233782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -78,7 +83,6 @@
 		638F4B13230B437400A48054 /* Invisible.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Invisible.mp3; sourceTree = "<group>"; };
 		638F4B14230B437400A48054 /* Classique.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Classique.mp3; sourceTree = "<group>"; };
 		638F4B15230B437400A48054 /* Scanner.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = Scanner.mp3; sourceTree = "<group>"; };
-		638F4B24230B467400A48054 /* HeartRateLEMonitor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeartRateLEMonitor.swift; sourceTree = "<group>"; };
 		63FEB97F230DB83000F667CC /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -129,13 +133,15 @@
 				1BEFB4502313736B00CEEA2E /* Particle */,
 				6323FF18230873E000233782 /* AppDelegate.swift */,
 				6323FF1A230873E000233782 /* ViewController.swift */,
+				1BEFB45923181F4C00CEEA2E /* StatsTableViewController.swift */,
+				1BEFB45B2318294E00CEEA2E /* Controller+Extensions.swift */,
 				6358A71F230C73DF0092F0D8 /* PlayViewController.swift */,
-				1BAEF0CD23116C0D00E123CC /* Level.swift */,
+				1BAEF0CD23116C0D00E123CC /* LevelUtil.swift */,
 				1BFEC460230E313C003A9C5F /* Player.swift */,
 				1B5C8851230F2D8E0073B1A5 /* BlockSet.swift */,
-				638F4B24230B467400A48054 /* HeartRateLEMonitor.swift */,
 				6323FF22230873E500233782 /* Assets.xcassets */,
 				6323FF24230873E500233782 /* Info.plist */,
+				1BEFB45723174B8400CEEA2E /* DataController.swift */,
 				6323FF1C230873E000233782 /* FitFlare.xcdatamodeld */,
 				63FEB97F230DB83000F667CC /* Constants.swift */,
 			);
@@ -261,14 +267,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				1B5C8852230F2D8E0073B1A5 /* BlockSet.swift in Sources */,
-				638F4B25230B467400A48054 /* HeartRateLEMonitor.swift in Sources */,
 				6358A720230C73DF0092F0D8 /* PlayViewController.swift in Sources */,
-				1BAEF0CE23116C0D00E123CC /* Level.swift in Sources */,
+				1BAEF0CE23116C0D00E123CC /* LevelUtil.swift in Sources */,
 				6323FF1B230873E000233782 /* ViewController.swift in Sources */,
+				1BEFB45823174B8400CEEA2E /* DataController.swift in Sources */,
 				6323FF19230873E000233782 /* AppDelegate.swift in Sources */,
 				1BFEC461230E313C003A9C5F /* Player.swift in Sources */,
 				6323FF1E230873E000233782 /* FitFlare.xcdatamodeld in Sources */,
 				63FEB980230DB83000F667CC /* Constants.swift in Sources */,
+				1BEFB45C2318294E00CEEA2E /* Controller+Extensions.swift in Sources */,
+				1BEFB45A23181F4C00CEEA2E /* StatsTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

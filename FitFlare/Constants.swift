@@ -29,6 +29,10 @@ struct Constants {
         static let rightFootOut = SCNVector3(0.4, 0.2, 0)
         static let leftFootOut = SCNVector3(-0.4, 0.2, 0)
     }
+    
+    struct Table {
+        static let reuseId = "Cell"
+    }
 }
 
 struct CollisionCategory {

@@ -22,9 +22,6 @@ class ViewController: UIViewController {
     let lightNode = SCNNode()
     let spotLight = SCNLight()
     
-    let cube = SCNBox(width: 1.0, height: 1.0, length: 1.0, chamferRadius: 0.15)
-    let cubeNode = SCNNode()
-    
     var audioPlayer: AVAudioPlayer?
     let name = "Ice_Cream"
     
@@ -69,12 +66,6 @@ class ViewController: UIViewController {
         playerNode.leftFoot.runAction(SCNAction.sequence([emergeWait, playerNode.leftFootEmergeAction]))
         playerNode.leftHand.runAction(SCNAction.sequence([emergeWait, playerNode.leftHandEmergeAction]))
 
-        
-
-        //setupCubeNode()
-        cube.materials.first?.diffuse.contents = UIColor.cyan
-        scene.rootNode.addChildNode(cubeNode)
-
         scene.rootNode.addChildNode(playerNode)
         scene.rootNode.addChildNode(lightNode)
         scene.rootNode.addChildNode(ground)
@@ -110,16 +101,16 @@ class ViewController: UIViewController {
         cameraNode.addChildNode(node)    
     }
     
-//    fileprivate func setupCubeNode() {
-//        cubeNode.geometry = cube
-//        cubeNode.position = SCNVector3(0,2,0)
-//        //playerNode.position = SCNVector3(0,5,0)
-//    }
-    
     @objc func pushPlay() {
         let playVC = PlayViewController(nibName: nil, bundle: nil)
         audioPlayer?.stop()
         self.navigationController?.pushViewController(playVC, animated: true)
+    }
+    
+    @objc func goToPlayStats() {
+        let statsVC = StatsViewController(nibName: nil, bundle: nil)
+        audioPlayer?.stop()
+        self.navigationController?.pushViewController(statsVC, animated: true)
     }
     
     func createButtons() {
@@ -130,6 +121,7 @@ class ViewController: UIViewController {
         
         let statsButton = UIButton(type: .system)
         statsButton.setTitle(NSLocalizedString("Stats", comment: ""), for: .normal)
+        statsButton.addTarget(self, action: #selector(self.goToPlayStats), for: .primaryActionTriggered)
         configureButtons(statsButton)
     }
     
@@ -194,8 +186,6 @@ class ViewController: UIViewController {
         let cameraSearch = SCNAction.sequence([lookDown, wait, lookUp])
         node.runAction(cameraSearch)
         let moveDown = SCNAction.move(to: Constants.Positions.initialCamera, duration: 5)
-        //let panning = cameraPanning()
-        //let sequence = SCNAction.sequence([moveDown, wait, panning])
         return moveDown
     }
     
@@ -210,24 +200,9 @@ class ViewController: UIViewController {
         let moveDown = SCNAction.move(to: Constants.Positions.initialCamera, duration: 3.5)
         let searchSequence = SCNAction.group([cameraSearch, moveDown])
         
-        let lookDown = SCNAction.rotateBy(x: -0.10, y: 0.01, z: -0.01, duration: 0.5)
-        let lookDownWait = SCNAction.wait(duration: 1.4)
-        let lookDownScan = SCNAction.rotateBy(x: 0, y: -0.01, z: -0.01, duration: 0.8)
-        let lookDownScanBack = SCNAction.rotateBy(x: 0, y: 0.01, z: 0.01, duration: 1.9)
-        let lookUp = SCNAction.rotateBy(x: 0.10, y: -0.01, z: 0.01, duration: 2.0)
-        
-        let cameraRight = SCNAction.rotateBy(x: 0.09, y:  0.7, z: 0, duration: 2.8)
-        let cameraWait = SCNAction.wait(duration: 0.7)
-        let cameraLeft = SCNAction.rotateBy(x: -0.09, y: -0.7, z: 0, duration: 3.5)
-        let cameraRight2 = SCNAction.rotateBy(x: -0.06, y:  -0.6, z: 0, duration: 2.8)
-        let cameraLeft2 = SCNAction.rotateBy(x: 0.06, y: 0.6, z: 0, duration: 3.1)
-        let hoverSequence2 = SCNAction.sequence([lookDownWait, lookDown, lookDownWait, lookDownScan, lookDownScanBack, lookUp])
-        let hoverSequence3 = SCNAction.sequence([cameraWait, cameraWait, cameraWait, cameraWait, cameraRight,cameraWait, cameraWait, cameraLeft, cameraRight2, cameraWait, cameraWait, cameraLeft2])
-        let lookGroup = SCNAction.group([hoverSequence2, hoverSequence3])
+        let lookGroup = SCNAction.group([LevelUtil.cameraLookAround, LevelUtil.cameraScanning])
         let overallSequence = SCNAction.sequence([searchSequence, lookGroup])
-        hoverSequence2.timingMode = .easeInEaseOut
-        hoverSequence3.timingMode = .easeInEaseOut
-        _ = SCNAction.repeatForever(hoverSequence3)
+        _ = SCNAction.repeatForever(LevelUtil.cameraScanning)
         return overallSequence
     }
 }

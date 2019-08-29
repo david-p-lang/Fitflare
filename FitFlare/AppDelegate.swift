@@ -16,6 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        DataController.shared.load()
         self.window = UIWindow(frame: UIScreen.main.bounds)
         let nav = UINavigationController.init(nibName: nil, bundle: nil)
         let firstVC = ViewController(nibName: nil, bundle: nil)
@@ -24,7 +25,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window?.makeKeyAndVisible()
         return true
     }
-
+  func applicationWillTerminate(_ application: UIApplication) {
+    self.saveContext()
+  }
     // MARK: - Core Data stack
 
     lazy var persistentContainer: NSPersistentContainer = {
