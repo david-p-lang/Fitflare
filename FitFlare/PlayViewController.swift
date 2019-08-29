@@ -12,8 +12,6 @@ import SpriteKit
 import AVFoundation
 
 class PlayViewController: UIViewController {
-
-    var hrMonitor:HeartRateLEMonitor!
     
     let screenStack = UIStackView()
     
@@ -94,10 +92,6 @@ class PlayViewController: UIViewController {
         scene.rootNode.addChildNode(floorNode)
         scene.rootNode.addChildNode(cameraNode)
         sceneView.showsStatistics = true
-        //sceneView.debugOptions = [.showCameras, .showPhysicsShapes, .showBoundingBoxes]
-//        cameraNode.addChildNode(playerNode)
-//        
-//        playerNode.position = SCNVector3(0, -3, -18)
         
         timer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.workoutTime), userInfo: nil, repeats: true)
         

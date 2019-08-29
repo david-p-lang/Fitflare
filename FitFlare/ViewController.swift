@@ -23,17 +23,18 @@ class ViewController: UIViewController {
     let spotLight = SCNLight()
     
     let cube = SCNBox(width: 1.0, height: 1.0, length: 1.0, chamferRadius: 0.15)
-
     let cubeNode = SCNNode()
     
-    var player: AVAudioPlayer?
+    var audioPlayer: AVAudioPlayer?
     let name = "Ice_Cream"
     
+    var playerNode:Player!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         sceneView.showsStatistics = true
         sceneView.allowsCameraControl = true
+        
         setupScreenStack()
         setupButtonStack()
         setupScene()
@@ -53,18 +54,34 @@ class ViewController: UIViewController {
 
         setupLight(light: spotLight, node: lightNode, ground)
         
- 
+        playerNode = Player()
+        playerNode.physicsBody = nil
+        playerNode.position = SCNVector3(1,2.5, 0)
+        playerNode.light = nil
+    
+        playerNode.retract()
+        let emergeWait = SCNAction.wait(duration: 26)
+        playerNode.head.runAction(SCNAction.sequence([emergeWait, playerNode.headEmergeAction]))
+        emergeWait.duration = 27.2
+        playerNode.rightFoot.runAction(SCNAction.sequence([emergeWait, playerNode.rightFootEmergeAction]))
+        emergeWait.duration = 27.5
+        playerNode.rightHand.runAction(SCNAction.sequence([emergeWait, playerNode.rightHandEmergeAction]))
+        playerNode.leftFoot.runAction(SCNAction.sequence([emergeWait, playerNode.leftFootEmergeAction]))
+        playerNode.leftHand.runAction(SCNAction.sequence([emergeWait, playerNode.leftHandEmergeAction]))
+
         
-        setupCubeNode()
+
+        //setupCubeNode()
         cube.materials.first?.diffuse.contents = UIColor.cyan
         scene.rootNode.addChildNode(cubeNode)
+
+        scene.rootNode.addChildNode(playerNode)
         scene.rootNode.addChildNode(lightNode)
         scene.rootNode.addChildNode(ground)
         scene.rootNode.addChildNode(cameraNode)
-
         
         cameraNode.runAction(cameraPanning(node: cameraNode))
-        addHoverSpin(node: cubeNode)
+        addHoverSpin(node: playerNode)
         
         //sprite kit display
         
@@ -90,18 +107,18 @@ class ViewController: UIViewController {
         let node = SCNNode(geometry: plane)
         node.position = SCNVector3(-15, 5, -18)
         node.eulerAngles = SCNVector3(CGFloat.pi, 0, 0)
-        cameraNode.addChildNode(node)
-        
+        cameraNode.addChildNode(node)    
     }
     
-    fileprivate func setupCubeNode() {
-        cubeNode.geometry = cube
-        cubeNode.position = SCNVector3(0,2.5,0)
-    }
+//    fileprivate func setupCubeNode() {
+//        cubeNode.geometry = cube
+//        cubeNode.position = SCNVector3(0,2,0)
+//        //playerNode.position = SCNVector3(0,5,0)
+//    }
     
     @objc func pushPlay() {
         let playVC = PlayViewController(nibName: nil, bundle: nil)
-        player?.stop()
+        audioPlayer?.stop()
         self.navigationController?.pushViewController(playVC, animated: true)
     }
     
@@ -111,9 +128,9 @@ class ViewController: UIViewController {
         playButton.addTarget(self, action: #selector(self.pushPlay), for: .primaryActionTriggered)
         configureButtons(playButton)
         
-        let connectButton = UIButton(type: .system)
-        connectButton.setTitle(NSLocalizedString("Connect", comment: ""), for: .normal)
-        configureButtons(connectButton)
+        let statsButton = UIButton(type: .system)
+        statsButton.setTitle(NSLocalizedString("Stats", comment: ""), for: .normal)
+        configureButtons(statsButton)
     }
     
     fileprivate func setupScene() {
@@ -136,17 +153,15 @@ class ViewController: UIViewController {
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
-            player = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
-            player?.prepareToPlay()
-            player?.play()
-            player?.numberOfLoops = 3
+            audioPlayer = try AVAudioPlayer(contentsOf: url, fileTypeHint: AVFileType.mp3.rawValue)
+            audioPlayer?.prepareToPlay()
+            audioPlayer?.play()
+            audioPlayer?.numberOfLoops = 3
         } catch let error {
             print(error.localizedDescription)
         }
     }
-    
 
-    
     func configureButtons(_ button: UIButton) {
         buttonStack.addArrangedSubview(button)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -170,9 +185,6 @@ class ViewController: UIViewController {
         buttonStack.spacing = 30
         buttonStack.translatesAutoresizingMaskIntoConstraints = false
     }
-}
-
-extension UIViewController {
     
     func lowerCamera(node: SCNNode) -> SCNAction {
         node.position = SCNVector3(0, 30, 12)
@@ -195,7 +207,7 @@ extension UIViewController {
         let searchUp = searchDown.reversed()
         let cameraSearch = SCNAction.sequence([searchDown, searchWait, searchUp])
         node.runAction(cameraSearch)
-        let moveDown = SCNAction.move(to: Constants.Positions.initialCamera, duration: 4.5)
+        let moveDown = SCNAction.move(to: Constants.Positions.initialCamera, duration: 3.5)
         let searchSequence = SCNAction.group([cameraSearch, moveDown])
         
         let lookDown = SCNAction.rotateBy(x: -0.10, y: 0.01, z: -0.01, duration: 0.5)
@@ -222,7 +234,6 @@ extension UIViewController {
 
 extension UIViewController {
  
-    
     func addHoverSpin(node: SCNNode) {
         let rotateOne = SCNAction.rotateBy(x: 0, y: CGFloat(Float.pi), z: 0, duration: 4.0)
         let hoverUp = SCNAction.moveBy(x: 0, y: 0.3, z: 0, duration: 2.5)

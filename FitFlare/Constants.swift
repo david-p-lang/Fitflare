@@ -21,6 +21,13 @@ struct Constants {
     
     struct Positions {
         static let initialCamera = SCNVector3(0, 5, 12)
+        static let origin = SCNVector3(0,0,0)
+        static let headOut = SCNVector3(0, 2.0, 0)
+        static let torsoOut = SCNVector3(0, 1.3, 0)
+        static let rightHandOut = SCNVector3(0.55, 1.0, 0)
+        static let leftHandOut = SCNVector3(-0.55, 1.0, 0)
+        static let rightFootOut = SCNVector3(0.4, 0.2, 0)
+        static let leftFootOut = SCNVector3(-0.4, 0.2, 0)
     }
 }
 
