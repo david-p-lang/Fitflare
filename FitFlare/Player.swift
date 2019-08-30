@@ -177,7 +177,6 @@ class Player: SCNNode {
         let hoverSequence = SCNAction.sequence([hoverUp, hoverDown])
         let rotateAndHover = SCNAction.group([ hoverSequence])
         let repeatForever = SCNAction.repeatForever(rotateAndHover)
-        //self.runAction(repeatForever)
         
         //foot movement
         let footUp = SCNAction.move(by: SCNVector3(0, 0.5, 0), duration: 0.2)
@@ -210,10 +209,10 @@ class Player: SCNNode {
 struct Positions {
     static let initialCamera = SCNVector3(0, 5, 12)
     static let origin = SCNVector3(0,0,0)
-    static let headOut = SCNVector3(0, 0.5, 0)
+    static let headOut = SCNVector3(0, 0.9, 0)
     static let torsoOut = SCNVector3(0, 1.3, 0)
-    static let rightHandOut = SCNVector3(0.55, 0.5, 0)
-    static let leftHandOut = SCNVector3(-0.55, 0.5, 0)
+    static let rightHandOut = SCNVector3(0.55, -0.2, 0)
+    static let leftHandOut = SCNVector3(-0.55, -0.2, 0)
     static let rightFootOut = SCNVector3(0.4, -1.2, 0)
     static let leftFootOut = SCNVector3(-0.4, -1.2, 0)
 }

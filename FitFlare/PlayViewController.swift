@@ -12,39 +12,52 @@ import SpriteKit
 import AVFoundation
 
 class PlayViewController: UIViewController {
-    
-    let screenStack = UIStackView()
-    
-    let sceneView = SCNView()
-    var cameraNode = SCNNode()
-    let scene = SCNScene()
-    
-    let lightNode = SCNNode()
-    let spotLight = SCNLight()
-    
-    var audioPlayer: AVAudioPlayer?
-    let songName = "Darkdub"
-    
-    var floorGeometry:SCNFloor!
-    var floorNode:SCNNode!
-    
-    var hudLabelNode:SKLabelNode!
-    var hudNode:SCNNode!
-    
-    var alertLabelNode:SKLabelNode!
-    var alertNode:SCNNode!
-    
-    let rect = CGRect(x: 0, y: 0, width: 1000, height: 500)
-    
-    var timer:Timer!
-    var timerCount = Constants.times.workoutTime
-    
-    weak var contactDelegate: SCNPhysicsContactDelegate!
-    var playerNode:Player!
-    
-    var blockSpawnTime:TimeInterval = 0
-    
-    var blocks:Set<BlockSetNode> = Set<BlockSetNode>()
+  
+  let screenStack = UIStackView()
+  
+  let sceneView = SCNView()
+  var cameraNode = SCNNode()
+  let scene = SCNScene()
+  
+  let lightNode = SCNNode()
+  let spotLight = SCNLight()
+  
+  var audioPlayer: AVAudioPlayer?
+  let songName = "Darkdub"
+  
+  var floorGeometry:SCNFloor!
+  var floorNode:SCNNode!
+  
+  var hudLabelNode:SKLabelNode!
+  var hudNode:SCNNode!
+  
+  var alertLabelNode:SKLabelNode!
+  var alertNode:SCNNode!
+  
+  let rect = CGRect(x: 0, y: 0, width: 1000, height: 500)
+  
+  var timer:Timer!
+  var timerCount = Constants.times.workoutTime
+  
+  weak var contactDelegate: SCNPhysicsContactDelegate!
+  var playerNode:Player!
+  
+  var blockSpawnTime:TimeInterval = 0
+  
+  var blocks:Set<BlockSetNode> = Set<BlockSetNode>()
+  
+  var replicatorConstraint:SCNReplicatorConstraint!
+  
+  let forwardConstraint:SCNTransformConstraint = {
+    let constraint = SCNTransformConstraint.orientationConstraint(inWorldSpace: true) { (node, quaternion) -> SCNQuaternion in
+      var constrainedQuaternion = quaternion
+      constrainedQuaternion.x = 0.035
+      constrainedQuaternion.z = -0.015
+      constrainedQuaternion.y = 0.25
+      return constrainedQuaternion
+    }
+    return constraint
+  }()
     
 
     fileprivate func setupFloorGeometry() {
@@ -57,18 +70,19 @@ class PlayViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupScreenStack()
-        setupScene()
-        sceneView.delegate = self
-        sceneView.scene?.physicsWorld.contactDelegate = self
-
-        setupCamera(cameraNode: cameraNode)
-
-        playerNode = Player()
-        playerNode.walkInPlace()
-        sceneView.pause(self)
-        
-        playSound(name: songName)
+      setupScreenStack()
+      setupScene()
+      sceneView.delegate = self
+      sceneView.scene?.physicsWorld.contactDelegate = self
+      
+      setupCamera(cameraNode: cameraNode)
+      
+      playerNode = Player()
+      playerNode.walkInPlace()
+      sceneView.pause(self)
+      
+      playSound(name: songName)
+      setUpTargetBasedConstraints(playerNode: playerNode)
         
         setupFloorGeometry()
         let floorMaterial = SCNMaterial()
@@ -117,95 +131,80 @@ class PlayViewController: UIViewController {
     override func pressesBegan(_ presses: Set<UIPress>, with event: UIPressesEvent?) {
         for press in presses {
             switch press.type {
-            case .upArrow:
-                //print("Up Arrow ", playerNode.presentation.position)
-                if playerNode.presentation.position.y < 20 {
-                    playerNode.physicsBody?.velocity = SCNVector3(0, 0, 0)
-                    playerNode.physicsBody?.applyForce(SCNVector3(0, 200, 0), asImpulse: true)
-                }
-            case .downArrow:
-                print("Down arrow")
-                playerNode.physicsBody?.applyForce(SCNVector3(0, 50, 0), asImpulse: true)
-            case .leftArrow:
-                print("Left arrow")
-            case .rightArrow:
-                print("Right arrow")
-            case .select:
-                print("Select")
-            case .menu:
-                print("Menu")
+            case .upArrow, .downArrow, .select, .rightArrow, .leftArrow:
+              jump()
+            case .menu: break
             default: break
             }
         }
     }
-
-    
-    @objc func workoutTime() {
-        timerCount -= 1
-        switch timerCount {
-        case 35, 34, 33:
-            hudLabelNode.text = "Walk"
-            alertLabelNode.text = "Ready"
-        case 32:
-            alertLabelNode.text = "Set"
-        case 31:
-            alertLabelNode.text = "Go"
-        default:
-            hudLabelNode.text = "Walk \(timerCount)"
- 
-            if timerCount == 29 {
-                timerCount = 35
-                timer.invalidate()
-                sceneView.play(self)
-                print("start playing", sceneView.isPlaying)
-                
-                let cameraDistanceConstraint = SCNDistanceConstraint(target: playerNode)
-                cameraDistanceConstraint.maximumDistance = 20
-                cameraDistanceConstraint.minimumDistance = 10
-                let replicatorConstraint = SCNReplicatorConstraint(target: playerNode)
-                //replicatorConstraint.orientationOffset = SCNQuaternion(0.1, 0.9, 0.1, 0)
-                replicatorConstraint.positionOffset = SCNVector3(6, 3, 8)
-                let cameraLookPlayerConstraint = SCNLookAtConstraint(target: playerNode)
-//                let avoiderConstraint = SCNAvoidOccluderConstraint(target: playerNode)
-//                avoiderConstraint.occluderCategoryBitMask = CollisionCategory.block
-                let forwardConstraint = SCNTransformConstraint.orientationConstraint(inWorldSpace: true) { (node, quaternion) -> SCNQuaternion in
-                    var constrainedQuaternion = quaternion
-                    //print("-", constrainedQuaternion)
-                    constrainedQuaternion.x = 0.035
-                    constrainedQuaternion.z = -0.015
-                    constrainedQuaternion.y = 0.25
-                    return constrainedQuaternion
-                }
-                cameraNode.constraints = [replicatorConstraint, SCNLookAtConstraint(target: playerNode), forwardConstraint]
-                hudNode.removeFromParentNode()
-                //floorNode.geometry?.materials[0].diffuse.contents = UIColor.clear
-                
-                playerNode.childNodes.forEach { (node) in
-                    node.removeAllAnimations()
-                    node.removeAllActions()
-                }
-                playerNode.removeAllAnimations()
-                guard let particleSystem = SCNParticleSystem(named: "reactor.scnp", inDirectory: nil) else { return }
-                playerNode.torso.addParticleSystem(particleSystem)
-            }
-        }
+  
+  func jump() {
+    if playerNode.presentation.position.y < 20 {
+      playerNode.physicsBody?.velocity = SCNVector3(0, 0, 0)
+      playerNode.physicsBody?.applyForce(SCNVector3(0, 200, 0), asImpulse: true)
     }
-    
-    fileprivate func addHud(_ hudPosition: SCNVector3) {
+  }
+  
+  @objc func workoutTime() {
+    timerCount -= 1
+    switch timerCount {
+    case 35, 34, 33:
+      hudLabelNode.text = "Walk"
+      alertLabelNode.text = "Ready"
+    case 32:
+      alertLabelNode.text = "Set"
+    case 31:
+      alertLabelNode.text = "Go"
+    default:
+      hudLabelNode.text = "Walk \(timerCount)"
+      
+      if timerCount == 20 {
+        timerCount = 35
+        timer.invalidate()
+        sceneView.play(self)
+        print("start playing", sceneView.isPlaying)
         
-        let hudComponents = buildHud(position: hudPosition)
-        hudNode = hudComponents.0
-        hudLabelNode = hudComponents.1
-        cameraNode.addChildNode(hudNode)
+        //Adjust Camera Constraints
+        cameraNode.constraints = [replicatorConstraint, SCNLookAtConstraint(target: playerNode), forwardConstraint]
+        hudNode.removeFromParentNode()
+        //floorNode.geometry?.materials[0].diffuse.contents = UIColor.clear
+        
+        playerNode.childNodes.forEach { (node) in
+          node.removeAllAnimations()
+          node.removeAllActions()
+        }
+        playerNode.removeAllAnimations()
+        guard let particleSystem = SCNParticleSystem(named: "reactor.scnp", inDirectory: nil) else { return }
+        playerNode.torso.addParticleSystem(particleSystem)
+      }
     }
+  }
+  
+  func setUpTargetBasedConstraints(playerNode: SCNNode) {
+    let cameraDistanceConstraint = SCNDistanceConstraint(target: playerNode)
+    cameraDistanceConstraint.maximumDistance = 20
+    cameraDistanceConstraint.minimumDistance = 10
+    replicatorConstraint = SCNReplicatorConstraint(target: playerNode)
+    //replicatorConstraint.orientationOffset = SCNQuaternion(0.1, 0.9, 0.1, 0)
+    replicatorConstraint.positionOffset = SCNVector3(6, 3, 8)
+    let cameraLookPlayerConstraint = SCNLookAtConstraint(target: playerNode)
+  }
     
-    fileprivate func addAlert(_ alertPosition: SCNVector3) {
-        let alertComponents = buildHud(position: alertPosition)
-        alertNode = alertComponents.0
-        alertLabelNode = alertComponents.1
-        cameraNode.addChildNode(alertNode)
-    }
-    
+  fileprivate func addHud(_ hudPosition: SCNVector3) {
+    let hudComponents = buildHud(position: hudPosition)
+    hudNode = hudComponents.0
+    hudLabelNode = hudComponents.1
+    cameraNode.addChildNode(hudNode)
+  }
+  
+  fileprivate func addAlert(_ alertPosition: SCNVector3) {
+    let alertComponents = buildHud(position: alertPosition)
+    alertNode = alertComponents.0
+    alertLabelNode = alertComponents.1
+    cameraNode.addChildNode(alertNode)
+  }
+  
     //https://stackoverflow.com/questions/32144666/resize-a-sklabelnode-font-size-to-fit
     //answered Aug 24 '15 at 14:47 - Edward
     func adjustLabelFontSizeToFitRect(labelNode:SKLabelNode, rect:CGRect) {
@@ -251,33 +250,33 @@ class PlayViewController: UIViewController {
         return (node, labelNode)
     }
 
-    fileprivate func setupScene() {
-        screenStack.addArrangedSubview(sceneView)
-        sceneView.heightAnchor.constraint(equalToConstant: 800).isActive = true
+  fileprivate func setupScene() {
+    screenStack.addArrangedSubview(sceneView)
+    sceneView.heightAnchor.constraint(equalToConstant: 800).isActive = true
+    
+    //sceneView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
+    sceneView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
+    sceneView.translatesAutoresizingMaskIntoConstraints = false
+    sceneView.backgroundColor = Constants.colors.blueSky
+    sceneView.scene = scene
+    sceneView.scene?.fogStartDistance = 2
+    sceneView.scene?.fogDensityExponent = 2
+    sceneView.scene?.fogEndDistance = 100
+    sceneView.scene?.fogColor = UIColor.init(white: 1.0, alpha: 0.9)
+    //sceneView.allowsCameraControl = true
+  }
+    
+  fileprivate func setupScreenStack() {
+    screenStack.axis = .vertical
+    screenStack.distribution = .equalCentering
+    screenStack.alignment = .center
+    screenStack.spacing = 30
+    view.addSubview(screenStack)
+    screenStack.translatesAutoresizingMaskIntoConstraints = false
+    screenStack.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+    screenStack.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+  }
 
-        //sceneView.heightAnchor.constraint(equalTo: view.heightAnchor).isActive = true
-        sceneView.widthAnchor.constraint(equalTo: view.widthAnchor).isActive = true
-        sceneView.translatesAutoresizingMaskIntoConstraints = false
-        sceneView.backgroundColor = Constants.colors.blueSky
-        sceneView.scene = scene
-        sceneView.scene?.fogStartDistance = 2
-        sceneView.scene?.fogDensityExponent = 2
-        sceneView.scene?.fogEndDistance = 100
-        sceneView.scene?.fogColor = UIColor.init(white: 1.0, alpha: 0.9)
-        //sceneView.allowsCameraControl = true
-    }
-    
-    fileprivate func setupScreenStack() {
-        screenStack.axis = .vertical
-        screenStack.distribution = .equalCentering
-        screenStack.alignment = .center
-        screenStack.spacing = 30
-        view.addSubview(screenStack)
-        screenStack.translatesAutoresizingMaskIntoConstraints = false
-        screenStack.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-        screenStack.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-    }
-    
     func playSound(name: String) {
         guard let url = Bundle.main.url(forResource: name, withExtension: "mp3") else { return }
         do {

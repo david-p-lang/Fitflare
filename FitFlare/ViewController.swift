@@ -11,95 +11,117 @@ import SceneKit
 import SpriteKit
 import AVFoundation
 
-class ViewController: UIViewController {    
-    let screenStack = UIStackView()
-    let buttonStack = UIStackView()
+class ViewController: UIViewController {
+  let screenStack = UIStackView()
+  let buttonStack = UIStackView()
+  
+  let sceneView = SCNView()
+  var cameraNode = SCNNode()
+  let scene = SCNScene()
+  
+  let lightNode = SCNNode()
+  let spotLight = SCNLight()
+  
+  var audioPlayer: AVAudioPlayer?
+  let name = "Ice_Cream"
+  
+  
+  
+  let hudRectangle:SKShapeNode = {
+    let rectangle = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 1000, height: 500), cornerRadius: 20)
+    rectangle.fillColor = #colorLiteral(red: 0.2588235438, green: 0.7568627596, blue: 0.9686274529, alpha: 1)
+    rectangle.strokeColor = #colorLiteral(red: 0.05882352963, green: 0.180392161, blue: 0.2470588237, alpha: 1)
+    rectangle.lineWidth = 4
+    rectangle.alpha = 0.1
+    return rectangle
+  }()
+  
+  let hudLabelNode:SKLabelNode = {
+    let labelNode = SKLabelNode(text: "Shapeshifter")
+    labelNode.fontSize = 150
+    labelNode.position = CGPoint(x:400,y:350)
+    return  labelNode
+  }()
+  
+  var playerNode:Player = {
+    var playerNode = Player()
+    playerNode.physicsBody = nil
+    playerNode.position = SCNVector3(1,2.5, 0)
+    playerNode.light = nil
+    playerNode.retract()
+    return playerNode
+  }()
+  
+  var planeNode:SCNNode = {
+    let plane = SCNPlane(width: 15, height: 7.5)
+    let material = SCNMaterial()
+    material.isDoubleSided = true
+    //material.diffuse.contents = skScene
+    plane.materials = [material]
+    let planeNode = SCNNode(geometry: plane)
+    planeNode.position = SCNVector3(-15, 5, -18)
+    planeNode.eulerAngles = SCNVector3(CGFloat.pi, 0, 0)
+    return planeNode
+  }()
+  
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    sceneView.showsStatistics = true
+    sceneView.allowsCameraControl = true
+    
+    setupScreenStack()
+    setupButtonStack()
+    setupScene()
+    setupCamera(cameraNode: cameraNode)
+    createButtons()
+    
+    playSound(name: name)
+    
+    let groundGeometry = SCNFloor()
+    groundGeometry.reflectivity = 0.1
+    let groundMaterial = SCNMaterial()
+    groundMaterial.diffuse.contents = UIColor.darkGray
+    groundGeometry.materials = [groundMaterial]
+    
+    let ground = SCNNode(geometry: groundGeometry)
+    ground.position = SCNVector3(0, 0, -20)
+    
+    setupLight(light: spotLight, node: lightNode, ground)
 
-    let sceneView = SCNView()
-    var cameraNode = SCNNode()
-    let scene = SCNScene()
-    
-    let lightNode = SCNNode()
-    let spotLight = SCNLight()
-    
-    var audioPlayer: AVAudioPlayer?
-    let name = "Ice_Cream"
-    
-    var playerNode:Player!
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        sceneView.showsStatistics = true
-        sceneView.allowsCameraControl = true
-        
-        setupScreenStack()
-        setupButtonStack()
-        setupScene()
-        setupCamera(cameraNode: cameraNode)
-        createButtons()
+  addHoverSpin(node: playerNode.torso)
+    let emergeWait = SCNAction.wait(duration: 26)
+    playerNode.head.runAction(SCNAction.sequence([emergeWait, playerNode.headEmergeAction]), completionHandler: {
+      self.playerNode.torso.removeAllActions()
+    })
+    emergeWait.duration = 27.2
+    playerNode.rightFoot.runAction(SCNAction.sequence([emergeWait, playerNode.rightFootEmergeAction]))
+    emergeWait.duration = 27.5
+    playerNode.rightHand.runAction(SCNAction.sequence([emergeWait, playerNode.rightHandEmergeAction]))
+    playerNode.leftFoot.runAction(SCNAction.sequence([emergeWait, playerNode.leftFootEmergeAction]))
+    playerNode.leftHand.runAction(SCNAction.sequence([emergeWait, playerNode.leftHandEmergeAction]), completionHandler: {
+      self.playerNode.walkInPlace()
+    })
 
-        playSound(name: name)
-        
-        let groundGeometry = SCNFloor()
-        groundGeometry.reflectivity = 0.1
-        let groundMaterial = SCNMaterial()
-        groundMaterial.diffuse.contents = UIColor.darkGray
-        groundGeometry.materials = [groundMaterial]
     
-        let ground = SCNNode(geometry: groundGeometry)
-        ground.position = SCNVector3(0, 0, -20)
-
-        setupLight(light: spotLight, node: lightNode, ground)
-        
-        playerNode = Player()
-        playerNode.physicsBody = nil
-        playerNode.position = SCNVector3(1,2.5, 0)
-        playerNode.light = nil
+    scene.rootNode.addChildNode(playerNode)
+    scene.rootNode.addChildNode(lightNode)
+    scene.rootNode.addChildNode(ground)
+    scene.rootNode.addChildNode(cameraNode)
     
-        playerNode.retract()
-        let emergeWait = SCNAction.wait(duration: 26)
-        playerNode.head.runAction(SCNAction.sequence([emergeWait, playerNode.headEmergeAction]))
-        emergeWait.duration = 27.2
-        playerNode.rightFoot.runAction(SCNAction.sequence([emergeWait, playerNode.rightFootEmergeAction]))
-        emergeWait.duration = 27.5
-        playerNode.rightHand.runAction(SCNAction.sequence([emergeWait, playerNode.rightHandEmergeAction]))
-        playerNode.leftFoot.runAction(SCNAction.sequence([emergeWait, playerNode.leftFootEmergeAction]))
-        playerNode.leftHand.runAction(SCNAction.sequence([emergeWait, playerNode.leftHandEmergeAction]))
-
-        scene.rootNode.addChildNode(playerNode)
-        scene.rootNode.addChildNode(lightNode)
-        scene.rootNode.addChildNode(ground)
-        scene.rootNode.addChildNode(cameraNode)
-        
-        cameraNode.runAction(cameraPanning(node: cameraNode))
-        addHoverSpin(node: playerNode)
-        
-        //sprite kit display
-        
-        let skScene = SKScene(size: CGSize(width: 1000, height: 500))
-        skScene.backgroundColor = UIColor.clear
-        skScene.scaleMode = .aspectFill
-        let rectangle = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 1000, height: 500), cornerRadius: 20)
-        rectangle.fillColor = #colorLiteral(red: 0.2588235438, green: 0.7568627596, blue: 0.9686274529, alpha: 1)
-        rectangle.strokeColor = #colorLiteral(red: 0.05882352963, green: 0.180392161, blue: 0.2470588237, alpha: 1)
-        rectangle.lineWidth = 4
-        rectangle.alpha = 0.1
-        let labelNode = SKLabelNode(text: "Shapeshifter")
-        labelNode.fontSize = 150
-        labelNode.position = CGPoint(x:400,y:350)
-        skScene.addChild(rectangle)
-        skScene.addChild(labelNode)
-        
-        let plane = SCNPlane(width: 15, height: 7.5)
-        let material = SCNMaterial()
-        material.isDoubleSided = true
-        material.diffuse.contents = skScene
-        plane.materials = [material]
-        let node = SCNNode(geometry: plane)
-        node.position = SCNVector3(-15, 5, -18)
-        node.eulerAngles = SCNVector3(CGFloat.pi, 0, 0)
-        cameraNode.addChildNode(node)    
-    }
+    cameraNode.runAction(cameraPanning(node: cameraNode))
+    addHoverSpin(node: playerNode)
+    
+    //sprite kit display
+    let skScene = SKScene(size: CGSize(width: 1000, height: 500))
+    skScene.backgroundColor = UIColor.clear
+    skScene.scaleMode = .aspectFill
+    skScene.addChild(hudRectangle)
+    skScene.addChild(hudLabelNode)
+    
+    planeNode.geometry?.materials.first?.diffuse.contents = skScene
+    
+    cameraNode.addChildNode(planeNode)
+  }
     
     @objc func pushPlay() {
         let playVC = PlayViewController(nibName: nil, bundle: nil)
@@ -119,10 +141,10 @@ class ViewController: UIViewController {
         playButton.addTarget(self, action: #selector(self.pushPlay), for: .primaryActionTriggered)
         configureButtons(playButton)
         
-        let statsButton = UIButton(type: .system)
-        statsButton.setTitle(NSLocalizedString("Stats", comment: ""), for: .normal)
-        statsButton.addTarget(self, action: #selector(self.goToPlayStats), for: .primaryActionTriggered)
-        configureButtons(statsButton)
+//        let statsButton = UIButton(type: .system)
+//        statsButton.setTitle(NSLocalizedString("Stats", comment: ""), for: .normal)
+//        statsButton.addTarget(self, action: #selector(self.goToPlayStats), for: .primaryActionTriggered)
+//        configureButtons(statsButton)
     }
     
     fileprivate func setupScene() {
@@ -199,7 +221,6 @@ class ViewController: UIViewController {
         node.runAction(cameraSearch)
         let moveDown = SCNAction.move(to: Constants.Positions.initialCamera, duration: 3.5)
         let searchSequence = SCNAction.group([cameraSearch, moveDown])
-        
         let lookGroup = SCNAction.group([LevelUtil.cameraLookAround, LevelUtil.cameraScanning])
         let overallSequence = SCNAction.sequence([searchSequence, lookGroup])
         _ = SCNAction.repeatForever(LevelUtil.cameraScanning)
@@ -211,8 +232,8 @@ extension UIViewController {
  
     func addHoverSpin(node: SCNNode) {
         let rotateOne = SCNAction.rotateBy(x: 0, y: CGFloat(Float.pi), z: 0, duration: 4.0)
-        let hoverUp = SCNAction.moveBy(x: 0, y: 0.3, z: 0, duration: 2.5)
-        let hoverDown = SCNAction.moveBy(x: 0, y: -0.3, z: 0, duration: 2.5)
+        let hoverUp = SCNAction.moveBy(x: 0, y: 0.2, z: 0, duration: 2.5)
+        let hoverDown = SCNAction.moveBy(x: 0, y: -0.2, z: 0, duration: 2.5)
         let hoverSequence = SCNAction.sequence([hoverUp, hoverDown])
         let rotateAndHover = SCNAction.group([rotateOne, hoverSequence])
         let repeatForever = SCNAction.repeatForever(rotateAndHover)
