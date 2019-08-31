@@ -42,6 +42,10 @@ class PlayViewController: UIViewController {
   weak var contactDelegate: SCNPhysicsContactDelegate!
   var playerNode:Player!
   
+  var powerLevel = 0
+  
+  var gameMode:GameMode = .workout
+  
   var blockSpawnTime:TimeInterval = 0
   
   var blocks:Set<BlockSetNode> = Set<BlockSetNode>()
@@ -134,22 +138,27 @@ class PlayViewController: UIViewController {
             case .upArrow, .downArrow, .select, .rightArrow, .leftArrow:
               jump()
             case .menu: break
+            case .playPause:
+              //play pause functionality
+              break
             default: break
             }
         }
     }
   
   func jump() {
-    if playerNode.presentation.position.y < 20 {
+    if playerNode.presentation.position.y < 20 && gameMode == .gameOn {
       playerNode.physicsBody?.velocity = SCNVector3(0, 0, 0)
       playerNode.physicsBody?.applyForce(SCNVector3(0, 200, 0), asImpulse: true)
     }
   }
   
   @objc func workoutTime() {
+    //guard let particleSystem = SCNParticleSystem(named: "reactor.scnp", inDirectory: nil) else { return }
     timerCount -= 1
     switch timerCount {
     case 35, 34, 33:
+      gameMode = .workout
       hudLabelNode.text = "Walk"
       alertLabelNode.text = "Ready"
     case 32:
@@ -160,8 +169,9 @@ class PlayViewController: UIViewController {
       hudLabelNode.text = "Walk \(timerCount)"
       
       if timerCount == 20 {
-        timerCount = 35
-        timer.invalidate()
+        gameMode = .gameOn
+        //timerCount = 35
+        //timer.invalidate()
         sceneView.play(self)
         print("start playing", sceneView.isPlaying)
         
@@ -175,8 +185,27 @@ class PlayViewController: UIViewController {
           node.removeAllActions()
         }
         playerNode.removeAllAnimations()
-        guard let particleSystem = SCNParticleSystem(named: "reactor.scnp", inDirectory: nil) else { return }
-        playerNode.torso.addParticleSystem(particleSystem)
+        //guard let particleSystem = SCNParticleSystem(named: "reactor.scnp", inDirectory: nil) else { return }
+        //playerNode.torso.addParticleSystem(particleSystem)
+      }
+      if timerCount == 10 { //prod value likely -30 or configurable
+        //return to exercise mode
+        gameMode = .workout
+        timerCount = 35
+        playerNode.walkInPlace()
+        playerNode.constraints = [playerNode.xzConstraint, playerNode.workoutConstraint]
+
+        cameraNode.position = SCNVector3(0, 5, 12)
+        
+        playerNode.physicsBody?.velocity.y = 0
+        playerNode.position = SCNVector3(0, 0, 0)
+        print("player", playerNode.presentation.position)
+        cameraNode.constraints = [forwardConstraint]
+
+        //playerNode.torso.removeParticleSystem(particleSystem)
+        playerNode.torso.removeAllParticleSystems()
+        print("p1",playerNode.presentation.position)
+        print("camera",cameraNode.presentation.position)
       }
     }
   }
@@ -186,7 +215,6 @@ class PlayViewController: UIViewController {
     cameraDistanceConstraint.maximumDistance = 20
     cameraDistanceConstraint.minimumDistance = 10
     replicatorConstraint = SCNReplicatorConstraint(target: playerNode)
-    //replicatorConstraint.orientationOffset = SCNQuaternion(0.1, 0.9, 0.1, 0)
     replicatorConstraint.positionOffset = SCNVector3(6, 3, 8)
     let cameraLookPlayerConstraint = SCNLookAtConstraint(target: playerNode)
   }
@@ -224,18 +252,18 @@ class PlayViewController: UIViewController {
         skHudScene.backgroundColor = UIColor.clear
         skHudScene.scaleMode = .aspectFill
         
-        let rrectangle = SKShapeNode(rect: rect, cornerRadius: 20)
-        rrectangle.fillColor = #colorLiteral(red: 0.2588235438, green: 0.7568627596, blue: 0.9686274529, alpha: 1)
-        rrectangle.strokeColor = #colorLiteral(red: 0.05882352963, green: 0.180392161, blue: 0.2470588237, alpha: 1)
-        rrectangle.lineWidth = 5
-        rrectangle.alpha = 0.1
+        let hudRect = SKShapeNode(rect: rect, cornerRadius: 20)
+        hudRect.fillColor = #colorLiteral(red: 0.2588235438, green: 0.7568627596, blue: 0.9686274529, alpha: 1)
+        hudRect.strokeColor = #colorLiteral(red: 0.05882352963, green: 0.180392161, blue: 0.2470588237, alpha: 1)
+        hudRect.lineWidth = 5
+        hudRect.alpha = 0.1
         
         //todo error with size to fit algo above (small divisor)
         let labelNode = SKLabelNode(text: "------||-----")
         adjustLabelFontSizeToFitRect(labelNode: labelNode, rect: rect)
         //labelNode.position = CGPoint(x: 180, y: 250)
         skHudScene.addChild(labelNode)
-        skHudScene.addChild(rrectangle)
+        skHudScene.addChild(hudRect)
         
         let plane = SCNPlane(width: 15, height: 7.5)
         let material = SCNMaterial()
@@ -308,16 +336,17 @@ extension PlayViewController: SCNSceneRendererDelegate {
                 blockSetNode.removeFromParentNode()
             }
         }
-        switch sceneView.isPlaying {
+        switch sceneView.isPlaying && gameMode == GameMode.gameOn {
         case true:
 
-            if time > blockSpawnTime {
+            if time > blockSpawnTime  {
                 spawnBlocks()
-                
-                
+              
                 blockSpawnTime = time + TimeInterval(Float.random(in: 1.7...3.9))
                 
             }
+            
+            print(playerNode.presentation.position)
             
             blocks.forEach { (blockSetNode) in
                 blockSetNode.position.z += 0.06
@@ -325,6 +354,16 @@ extension PlayViewController: SCNSceneRendererDelegate {
         default:
             break
         }
+      switch sceneView.isPlaying && gameMode == GameMode.workout {
+      case true:
+        cameraNode.position = SCNVector3(0, 5, 12)
+
+        blocks.forEach { (blockSetNode) in
+          blockSetNode.removeFromParentNode()
+        }
+      default:
+        break
+      }
 
 
     }

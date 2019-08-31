@@ -42,10 +42,17 @@ struct CollisionCategory {
     
 }
 
-enum CollisionTypes: Int {
-    case player = 1
-    case wall = 2
-    case star = 4
-    case vortex = 8
-    case finish = 16
+//enum CollisionTypes: Int {
+//    case player = 1
+//    case wall = 2
+//    case star = 4
+//    case vortex = 8
+//    case finish = 16
+//}
+
+enum GameMode {
+  case workout
+  case gameOn
+  case paused
 }
+

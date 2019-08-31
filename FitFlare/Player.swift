@@ -81,7 +81,7 @@ class Player: SCNNode {
     var lightNode:SCNNode = {
         var lightNode = SCNNode()
         let playerLight = SCNLight()
-        playerLight.intensity = 500
+        playerLight.intensity = 200
         playerLight.type = SCNLight.LightType.omni
         lightNode = SCNNode()
         lightNode.light = playerLight
@@ -119,7 +119,7 @@ class Player: SCNNode {
 
         //declare geometries
         //todo - add dimensions to constants class
-        let torsoGeometry = SCNBox(width: 0.8, height: 0.8, length: 0.8, chamferRadius: 0.15)
+        let torsoGeometry = SCNBox(width: 0.7, height: 0.7, length: 0.7, chamferRadius: 0.15)
         let legGeometry = SCNBox(width: 0.2, height: 0.2, length: 0.2, chamferRadius: 0.015)
         let armGeometry = SCNBox(width: 0.15, height: 0.15, length: 0.15, chamferRadius: 0.015)
         let headGeometry = SCNBox(width: 0.4, height: 0.4, length: 0.4, chamferRadius: 0.1)
